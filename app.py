@@ -78,6 +78,24 @@ def cancel():
     </html>
     """
 
+@app.route("/privacy")
+def privacy():
+    return """
+    <html>
+    <head><title>Goose - Integritetspolicy</title></head>
+    <body style="font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px;">
+        <h1>Integritetspolicy för Goose</h1>
+        <p>Senast uppdaterad: 6 april 2026</p>
+        <h2>Vilken information samlar vi in?</h2>
+        <p>Goose samlar inte in personuppgifter. Den text du analyserar skickas till Anthropics API för behandling och lagras inte av oss.</p>
+        <h2>Hur använder vi informationen?</h2>
+        <p>Texten du skickar in används enbart för att generera en analys via Anthropic Claude AI.</p>
+        <h2>Kontakt</h2>
+        <p>Frågor? Kontakta oss på: alastaircs@gmail.com</p>
+    </body>
+    </html>
+    """
+
 @app.route("/verify-license", methods=["POST"])
 def verify_license():
     data = request.json
