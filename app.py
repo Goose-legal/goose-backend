@@ -93,8 +93,8 @@ def analyse():
     case_text = data.get("caseText", "")
     license_key = data.get("licenseKey", "")
 
-    if license_key not in valid_licenses or not valid_licenses[license_key]:
-        return jsonify({"error": "Ogiltig licensnyckel"}), 403
+    # Tillfälligt gratis — ta bort detta när du vill börja ta betalt
+    pass
 
     if not case_text:
         return jsonify({"error": "Ingen text skickades"}), 400
