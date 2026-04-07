@@ -6,6 +6,20 @@ import os
 import secrets
 
 app = Flask(__name__)
+import threading
+import urllib.request
+
+def keep_alive():
+    while True:
+        try:
+            urllib.request.urlopen('https://web-production-cd6e5.up.railway.app/health')
+        except:
+            pass
+        threading.Event().wait(300)
+
+@app.route("/health")
+def health():
+    return "ok"
 CORS(app)
 
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
