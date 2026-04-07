@@ -26,39 +26,40 @@ def analyse():
     if not case_text:
         return jsonify({"error": "Ingen text skickades"}), 400
 
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=800,
-        messages=[{
-            "role": "user",
-            "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
+    def generate():
+        with client.messages.stream(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=800,
+            messages=[{
+                "role": "user",
+                "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
 
 Viktigt:
 - Bygg endast pa det som uttryckligen framgar av texten.
 - Sarskild noga mellan bakgrund, rattsfrage, HD:s motivering och prejudikatverkan.
 - Ta inte med egna antaganden.
-- Om information saknas eller ar osakar, skriv: "Framgar inte tydligt av texten".
+- Om information saknas eller ar osakar, skriv: Framgar inte tydligt av texten.
 - Efter varje pastand, citera det relevanta stycket fran rattsfallet inom citationstecken.
 
 Svara med foljande rubriker och inget annat:
 
 HD:S BESLUT
-Beskriv kort vad HD kom fram till och hur malet avgjordes. Citera relevanta delar.
+Beskriv kort vad HD kom fram till och hur malet avgjordes.
 
 RATTSFRAGE
-Forklara vilken rattslig huvudfraga HD provade och varfor fragan var juridiskt viktig eller svar. Citera relevanta delar.
+Forklara vilken rattslig huvudfraga HD provade och varfor fragan var juridiskt viktig.
 
 DOMSKÄL
-Beskriv steg for steg hur HD resonerade for att na sitt avgörande. Citera relevanta delar.
+Beskriv steg for steg hur HD resonerade for att na sitt avgörande.
 
 LEGALA PRINCIPER
-Ange vilka rattregler, tolkningsprinciper eller vagledande uttalanden som HD slog fast. Citera relevanta delar.
+Ange vilka rattregler eller principer som HD slog fast.
 
 SKILJAKTIG MENING
-Ange om nagon ledamot var skiljaktig. Om ja, forklara kort och citera relevanta delar.
+Ange om nagon ledamot var skiljaktig och vad de ansag.
 
 PREJUDIKAT
-Forklara vilket vagledande varde avgörandet kan fa for framtida liknande mal.
+Forklara vilket vagledande varde avgörandet kan fa.
 
 Krav:
 - Max 4 meningar per rubrik
@@ -71,10 +72,12 @@ Text:
 <rattsfall>
 {case_text}
 </rattsfall>"""
-        }]
-    )
+            }]
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
 
-    return jsonify({"result": message.content[0].text})
+    return app.response_class(generate(), mimetype='text/plain')
 
 @app.route("/success")
 def success():
