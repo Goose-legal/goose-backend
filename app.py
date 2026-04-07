@@ -4,8 +4,7 @@ import anthropic
 import stripe
 import os
 import secrets
-import threading
-import urllib.request
+
 
 app = Flask(__name__)
 CORS(app)
@@ -15,19 +14,9 @@ stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 
 valid_licenses = {}
 
-def keep_alive():
-    while True:
-        try:
-            urllib.request.urlopen('https://web-production-cd6e5.up.railway.app/health')
-        except:
-            pass
-        threading.Event().wait(300)
-
 @app.route("/health")
 def health():
     return "ok"
-
-threading.Thread(target=keep_alive, daemon=True).start()
 
 @app.route("/analyse", methods=["POST"])
 def analyse():
