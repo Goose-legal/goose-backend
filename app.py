@@ -119,24 +119,26 @@ def verify_license():
         return jsonify({"valid": True})
     return jsonify({"valid": False})
 
-@app.route("/analyse", methods=["POST"])
+Ja! Det kallas streaming — Claude skickar svaret ord för ord istället för att vänta tills hela analysen är klar. Det gör att användaren ser text direkt efter några sekunder istället för att vänta 18 sekunder.
+Vi behöver ändra i båda app.py och popup.js:
+
+app.py — lägg till streaming
+Ersätt hela analyse-funktionen med:
+python@app.route("/analyse", methods=["POST"])
 def analyse():
     data = request.json
     case_text = data.get("caseText", "")
-    license_key = data.get("licenseKey", "")
-
-    # Tillfälligt gratis — ta bort detta när du vill börja ta betalt
-    pass
 
     if not case_text:
         return jsonify({"error": "Ingen text skickades"}), 400
 
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=800,
-        messages=[{
-            "role": "user",
-            "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
+    def generate():
+        with client.messages.stream(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=800,
+            messages=[{
+                "role": "user",
+                "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
 
 Viktigt:
 - Bygg endast pa det som uttryckligen framgar av texten.
@@ -176,10 +178,12 @@ Text:
 <rattsfall>
 {case_text}
 </rattsfall>"""
-        }]
-    )
+            }]
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
 
-    return jsonify({"result": message.content[0].text})
+    return app.response_class(generate(), mimetype='text/plain')
 
 if __name__ == "__main__":
     app.run(debug=True)
