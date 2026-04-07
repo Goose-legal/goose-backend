@@ -133,7 +133,7 @@ def analyse():
 
     message = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=2048,
+        max_tokens=1000,
         messages=[{
             "role": "user",
             "content": f"""Du ska analysera ett svenskt rättsfall och endast redovisa Högsta domstolens avgörande.
