@@ -4,10 +4,16 @@ import anthropic
 import stripe
 import os
 import secrets
-
-app = Flask(__name__)
 import threading
 import urllib.request
+
+app = Flask(__name__)
+CORS(app)
+
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+
+valid_licenses = {}
 
 def keep_alive():
     while True:
@@ -20,111 +26,10 @@ def keep_alive():
 @app.route("/health")
 def health():
     return "ok"
-CORS(app)
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+threading.Thread(target=keep_alive, daemon=True).start()
 
-valid_licenses = {}
-
-@app.route("/create-checkout", methods=["POST"])
-def create_checkout():
-    license_key = secrets.token_urlsafe(16)
-    
-    session = stripe.checkout.Session.create(
-        payment_method_types=["card"],
-        line_items=[{
-            "price": os.environ.get("STRIPE_PRICE_ID"),
-            "quantity": 1
-        }],
-        mode="payment",
-        success_url=f"https://web-production-cd6e5.up.railway.app/success?license={license_key}",
-        cancel_url="https://web-production-cd6e5.up.railway.app/cancel",
-        metadata={"license_key": license_key}
-    )
-    
-    valid_licenses[license_key] = False
-    return jsonify({"url": session.url})
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    payload = request.data
-    sig_header = request.headers.get("Stripe-Signature")
-    
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, os.environ.get("STRIPE_WEBHOOK_SECRET")
-        )
-    except Exception:
-        return jsonify({"error": "Ogiltig webhook"}), 400
-
-    if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-        license_key = session["metadata"]["license_key"]
-        valid_licenses[license_key] = True
-
-    return jsonify({"status": "ok"})
-
-@app.route("/success")
-def success():
-    license_key = request.args.get("license")
-    if license_key in valid_licenses:
-        valid_licenses[license_key] = True
-    return f"""
-    <html>
-    <body style="font-family: Arial; text-align: center; padding: 50px;">
-        <h1>Tack för ditt köp! 🪿</h1>
-        <p>Din licensnyckel:</p>
-        <h2 style="background: #f0f0f0; padding: 20px; border-radius: 8px;">{license_key}</h2>
-        <p>Klistra in den i Goose för att aktivera.</p>
-    </body>
-    </html>
-    """
-
-@app.route("/cancel")
-def cancel():
-    return """
-    <html>
-    <body style="font-family: Arial; text-align: center; padding: 50px;">
-        <h1>Betalning avbruten</h1>
-        <p>Du kan försöka igen när du vill.</p>
-    </body>
-    </html>
-    """
-
-@app.route("/privacy")
-def privacy():
-    return """
-    <html>
-    <head><title>Goose - Integritetspolicy</title></head>
-    <body style="font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px;">
-        <h1>Integritetspolicy för Goose</h1>
-        <p>Senast uppdaterad: 6 april 2026</p>
-        <h2>Vilken information samlar vi in?</h2>
-        <p>Goose samlar inte in personuppgifter. Den text du analyserar skickas till Anthropics API för behandling och lagras inte av oss.</p>
-        <h2>Hur använder vi informationen?</h2>
-        <p>Texten du skickar in används enbart för att generera en analys via Anthropic Claude AI.</p>
-        <h2>Kontakt</h2>
-        <p>Frågor? Kontakta oss på: alastaircs@gmail.com</p>
-    </body>
-    </html>
-    """
-
-@app.route("/verify-license", methods=["POST"])
-def verify_license():
-    data = request.json
-    license_key = data.get("licenseKey", "")
-    
-    if license_key in valid_licenses and valid_licenses[license_key]:
-        return jsonify({"valid": True})
-    return jsonify({"valid": False})
-
-Ja! Det kallas streaming — Claude skickar svaret ord för ord istället för att vänta tills hela analysen är klar. Det gör att användaren ser text direkt efter några sekunder istället för att vänta 18 sekunder.
-Vi behöver ändra i båda app.py och popup.js:
-
-app.py — lägg till streaming
-Ersätt hela analyse-funktionen med:
-python@app.route("/analyse", methods=["POST"])
+@app.route("/analyse", methods=["POST"])
 def analyse():
     data = request.json
     case_text = data.get("caseText", "")
@@ -132,13 +37,12 @@ def analyse():
     if not case_text:
         return jsonify({"error": "Ingen text skickades"}), 400
 
-    def generate():
-        with client.messages.stream(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=800,
-            messages=[{
-                "role": "user",
-                "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=800,
+        messages=[{
+            "role": "user",
+            "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
 
 Viktigt:
 - Bygg endast pa det som uttryckligen framgar av texten.
@@ -178,12 +82,55 @@ Text:
 <rattsfall>
 {case_text}
 </rattsfall>"""
-            }]
-        ) as stream:
-            for text in stream.text_stream:
-                yield text
+        }]
+    )
 
-    return app.response_class(generate(), mimetype='text/plain')
+    return jsonify({"result": message.content[0].text})
+
+@app.route("/success")
+def success():
+    license_key = request.args.get("license")
+    if license_key in valid_licenses:
+        valid_licenses[license_key] = True
+    return f"""
+    <html>
+    <body style="font-family: Arial; text-align: center; padding: 50px;">
+        <h1>Tack for ditt kop!</h1>
+        <p>Din licensnyckel:</p>
+        <h2 style="background: #f0f0f0; padding: 20px; border-radius: 8px;">{license_key}</h2>
+        <p>Klistra in den i Goose for att aktivera.</p>
+    </body>
+    </html>
+    """
+
+@app.route("/cancel")
+def cancel():
+    return """
+    <html>
+    <body style="font-family: Arial; text-align: center; padding: 50px;">
+        <h1>Betalning avbruten</h1>
+        <p>Du kan forsoka igen nar du vill.</p>
+    </body>
+    </html>
+    """
+
+@app.route("/privacy")
+def privacy():
+    return """
+    <html>
+    <head><title>Goose - Integritetspolicy</title></head>
+    <body style="font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px;">
+        <h1>Integritetspolicy for Goose</h1>
+        <p>Senast uppdaterad: 6 april 2026</p>
+        <h2>Vilken information samlar vi in?</h2>
+        <p>Goose samlar inte in personuppgifter. Den text du analyserar skickas till Anthropics API for behandling och lagras inte av oss.</p>
+        <h2>Hur anvander vi informationen?</h2>
+        <p>Texten du skickar in anvands enbart for att generera en analys via Anthropic Claude AI.</p>
+        <h2>Kontakt</h2>
+        <p>Fragor? Kontakta oss pa: alastaircs@gmail.com</p>
+    </body>
+    </html>
+    """
 
 if __name__ == "__main__":
     app.run(debug=True)
