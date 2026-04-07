@@ -136,37 +136,38 @@ def analyse():
         max_tokens=1000,
         messages=[{
             "role": "user",
-            "content": f"""Du ska analysera ett svenskt rättsfall och endast redovisa Högsta domstolens avgörande.
+            "content": f"""Du ska analysera ett svenskt rattsfall och endast redovisa Hogsta domstolens avgörande.
 
 Viktigt:
-- Bygg endast på det som uttryckligen framgår av texten.
-- Särskilj noga mellan bakgrund, rättsfråga, HD:s motivering och prejudikatverkan.
+- Bygg endast pa det som uttryckligen framgar av texten.
+- Sarskild noga mellan bakgrund, rattsfrage, HD:s motivering och prejudikatverkan.
 - Ta inte med egna antaganden.
-- Om information saknas eller är osäker, skriv: "Framgår inte tydligt av texten".
+- Om information saknas eller ar osakar, skriv: "Framgar inte tydligt av texten".
+- Efter varje pastand, citera det relevanta stycket fran rattsfallet inom citationstecken.
 
-Svara med följande rubriker och inget annat:
+Svara med foljande rubriker och inget annat:
 
 HD:S BESLUT
-Beskriv kort vad HD kom fram till och hur målet avgjordes.
+Beskriv kort vad HD kom fram till och hur malet avgjordes. Citera relevanta delar.
 
-RÄTTSFRÅGA
-Förklara vilken rättslig huvudfråga HD prövade och varför frågan var juridiskt viktig eller svår.
+RATTSFRAGE
+Forklara vilken rattslig huvudfraga HD provade och varfor fragan var juridiskt viktig eller svar. Citera relevanta delar.
 
 DOMSKÄL
-Beskriv steg för steg hur HD resonerade för att nå sitt avgörande. Fokusera på argumentkedjan.
+Beskriv steg for steg hur HD resonerade for att na sitt avgörande. Citera relevanta delar.
 
 LEGALA PRINCIPER
-Ange vilka rättsregler, tolkningsprinciper eller vägledande uttalanden som HD slog fast eller förtydligade.
+Ange vilka rattregler, tolkningsprinciper eller vagledande uttalanden som HD slog fast. Citera relevanta delar.
 
 SKILJAKTIG MENING
-Ange om någon ledamot var skiljaktig. Om ja, förklara kort vad den skiljaktiga meningen gick ut på.
+Ange om nagon ledamot var skiljaktig. Om ja, forklara kort och citera relevanta delar.
 
 PREJUDIKAT
-Förklara vilket vägledande värde avgörandet kan få för framtida liknande mål.
+Forklara vilket vagledande varde avgörandet kan fa for framtida liknande mal.
 
 Krav:
 - Max 4 meningar per rubrik
-- Max 500 ord totalt
+- Max 600 ord totalt
 - Enkel och tydlig svenska
 - Inga punktlistor
 - Ingen markdown
