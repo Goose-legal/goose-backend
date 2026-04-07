@@ -46,7 +46,7 @@ Svara med foljande rubriker och inget annat:
 HD:S BESLUT
 Beskriv kort vad HD kom fram till och hur malet avgjordes.
 
-RATTSFRAGE
+RÄTTSFRAGA
 Forklara vilken rattslig huvudfraga HD provade och varfor fragan var juridiskt viktig.
 
 DOMSKÄL
