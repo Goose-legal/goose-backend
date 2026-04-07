@@ -62,7 +62,7 @@ PREJUDIKAT
 Forklara vilket vagledande varde avgörandet kan fa.
 
 Krav:
-- Max 4 meningar per rubrik
+- Max 2 meningar per rubrik
 - Max 600 ord totalt
 - Enkel och tydlig svenska
 - Inga punktlistor
