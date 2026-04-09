@@ -1,18 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import anthropic
-import stripe
 import os
-import secrets
-
 
 app = Flask(__name__)
 CORS(app)
 
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-
-valid_licenses = {}
 
 @app.route("/health")
 def health():
@@ -78,33 +72,6 @@ Text:
                 yield text
 
     return app.response_class(generate(), mimetype='text/plain')
-
-@app.route("/success")
-def success():
-    license_key = request.args.get("license")
-    if license_key in valid_licenses:
-        valid_licenses[license_key] = True
-    return f"""
-    <html>
-    <body style="font-family: Arial; text-align: center; padding: 50px;">
-        <h1>Tack for ditt kop!</h1>
-        <p>Din licensnyckel:</p>
-        <h2 style="background: #f0f0f0; padding: 20px; border-radius: 8px;">{license_key}</h2>
-        <p>Klistra in den i Goose for att aktivera.</p>
-    </body>
-    </html>
-    """
-
-@app.route("/cancel")
-def cancel():
-    return """
-    <html>
-    <body style="font-family: Arial; text-align: center; padding: 50px;">
-        <h1>Betalning avbruten</h1>
-        <p>Du kan forsoka igen nar du vill.</p>
-    </body>
-    </html>
-    """
 
 @app.route("/privacy")
 def privacy():

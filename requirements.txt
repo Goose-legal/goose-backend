@@ -2,4 +2,3 @@ flask
 anthropic
 flask-cors
 gunicorn
-stripe
