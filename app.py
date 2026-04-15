@@ -32,7 +32,7 @@ Viktigt:
 - Bygg endast pa det som uttryckligen framgar av texten.
 - Sarskild noga mellan bakgrund, rattsfrage, HD:s motivering och prejudikatverkan.
 - Ta inte med egna antaganden.
-- Om information saknas eller ar osakar, skriv: Framgar inte tydligt av texten.
+- Om information saknas eller ar osakar, skriv: Framgår inte tydligt av texten.
 - Efter varje pastand, citera det relevanta stycket fran rattsfallet inom citationstecken.
 
 Svara med foljande rubriker och inget annat:
