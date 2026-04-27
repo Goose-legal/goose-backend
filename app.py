@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from docx import Document as DocxDocument
+from docx.shared import Inches, Pt, RGBColor
 from io import BytesIO
 from datetime import datetime
 import anthropic
@@ -84,23 +85,55 @@ def download():
 
     doc = DocxDocument()
 
-    title = doc.add_heading("Goose - Rattsfall Analys", 0)
-    title.alignment = 1
+    section = doc.sections[0]
+    section.top_margin = Inches(1.2)
+    section.bottom_margin = Inches(1.2)
+    section.left_margin = Inches(1.4)
+    section.right_margin = Inches(1.4)
 
-    doc.add_paragraph(f"Genererad: {datetime.now().strftime('%d %B %Y, %H:%M')}")
-    doc.add_paragraph("")
+    title = doc.add_paragraph()
+    title_run = title.add_run("Goose")
+    title_run.font.name = "Georgia"
+    title_run.font.size = Pt(22)
+    title_run.font.bold = True
+    title.alignment = 0
 
-    headings = ["HD:S BESLUT", "RÄTTSFRAGA", "DOMSKÄL", "LEGALA PRINCIPER", "SKILJAKTIG MENING", "PREJUDIKAT"]
+    date_para = doc.add_paragraph()
+    date_run = date_para.add_run(f"Analys genererad {datetime.now().strftime('%d %B %Y')}")
+    date_run.font.name = "Arial"
+    date_run.font.size = Pt(9)
+    date_run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
+    date_para.alignment = 0
+
+    doc.add_paragraph()
+
+    headings = ["HD:S BESLUT", "RÄTTSFRAGA", "RÄTTSFRÅGA", "DOMSKÄL", "LEGALA PRINCIPER", "SKILJAKTIG MENING", "PREJUDIKAT"]
 
     lines = analysis.split('\n')
     for line in lines:
         line = line.strip()
         if not line:
+            doc.add_paragraph()
             continue
-        if any(line.startswith(h) for h in headings):
-            doc.add_heading(line, level=2)
+
+        if any(line == h for h in headings):
+            p = doc.add_paragraph()
+            run = p.add_run(line)
+            run.font.name = "Arial"
+            run.font.size = Pt(9)
+            run.font.bold = True
+            run.font.color.rgb = RGBColor(0x1a, 0x1a, 0x2e)
+            p.paragraph_format.space_before = Pt(14)
+            p.paragraph_format.space_after = Pt(2)
         else:
-            doc.add_paragraph(line)
+            p = doc.add_paragraph()
+            run = p.add_run(line)
+            run.font.name = "Georgia"
+            run.font.size = Pt(10.5)
+            run.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(6)
+            p.paragraph_format.line_spacing = Pt(15)
 
     buffer = BytesIO()
     doc.save(buffer)
