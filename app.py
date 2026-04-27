@@ -82,6 +82,7 @@ Text:
 def download():
     data = request.json
     analysis = data.get("analysis", "")
+    case_name = data.get("caseName", "goose-analys")
 
     doc = DocxDocument()
 
@@ -91,6 +92,7 @@ def download():
     section.left_margin = Inches(1.4)
     section.right_margin = Inches(1.4)
 
+    # Titel
     title = doc.add_paragraph()
     title_run = title.add_run("Goose")
     title_run.font.name = "Georgia"
@@ -98,6 +100,7 @@ def download():
     title_run.font.bold = True
     title.alignment = 0
 
+    # Datum
     date_para = doc.add_paragraph()
     date_run = date_para.add_run(f"Analys genererad {datetime.now().strftime('%d %B %Y')}")
     date_run.font.name = "Arial"
@@ -105,46 +108,57 @@ def download():
     date_run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
     date_para.alignment = 0
 
-    doc.add_paragraph()
-
     headings = ["HD:S BESLUT", "RÄTTSFRAGA", "RÄTTSFRÅGA", "DOMSKÄL", "LEGALA PRINCIPER", "SKILJAKTIG MENING", "PREJUDIKAT"]
 
-    lines = analysis.split('\n')
-    for line in lines:
-        line = line.strip()
-        if not line:
-            doc.add_paragraph()
+    # Dela upp analysen vid rubriker
+    import re
+    pattern = '(' + '|'.join(re.escape(h) for h in headings) + ')'
+    parts = re.split(pattern, analysis)
+
+    for part in parts:
+        part = part.strip()
+        if not part:
             continue
 
-        if any(line == h for h in headings):
+        if part in headings:
+            # Tomt stycke innan rubrik
+            doc.add_paragraph()
             p = doc.add_paragraph()
-            run = p.add_run(line)
+            run = p.add_run(part)
             run.font.name = "Arial"
             run.font.size = Pt(9)
             run.font.bold = True
             run.font.color.rgb = RGBColor(0x1a, 0x1a, 0x2e)
-            p.paragraph_format.space_before = Pt(14)
-            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.space_before = Pt(6)
+            p.paragraph_format.space_after = Pt(4)
         else:
-            p = doc.add_paragraph()
-            run = p.add_run(line)
-            run.font.name = "Georgia"
-            run.font.size = Pt(10.5)
-            run.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
-            p.paragraph_format.space_before = Pt(0)
-            p.paragraph_format.space_after = Pt(6)
-            p.paragraph_format.line_spacing = Pt(15)
+            # Brödtext — dela vid meningar för bättre läsbarhet
+            sentences = part.replace('. "', '.\n"').replace('." ', '."\n').split('\n')
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if not sentence:
+                    continue
+                p = doc.add_paragraph()
+                run = p.add_run(sentence)
+                run.font.name = "Georgia"
+                run.font.size = Pt(10.5)
+                run.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
+                p.paragraph_format.space_before = Pt(0)
+                p.paragraph_format.space_after = Pt(4)
+                p.paragraph_format.line_spacing = Pt(15)
 
     buffer = BytesIO()
     doc.save(buffer)
     buffer.seek(0)
 
+    safe_name = "".join(c for c in case_name if c.isalnum() or c in (' ', '-', '_')).strip()
+    filename = f"{safe_name}.docx" if safe_name else "goose-analys.docx"
+
     return app.response_class(
         buffer.getvalue(),
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        headers={'Content-Disposition': 'attachment; filename=goose-analys.docx'}
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'}
     )
-
 
 @app.route("/privacy")
 def privacy():
