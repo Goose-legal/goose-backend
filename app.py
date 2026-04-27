@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from docx import Document as DocxDocument
+from io import BytesIO
+from datetime import datetime
 import anthropic
 import os
 
@@ -72,6 +75,43 @@ Text:
                 yield text
 
     return app.response_class(generate(), mimetype='text/plain')
+
+
+@app.route("/download", methods=["POST"])
+def download():
+    data = request.json
+    analysis = data.get("analysis", "")
+
+    doc = DocxDocument()
+
+    title = doc.add_heading("Goose - Rattsfall Analys", 0)
+    title.alignment = 1
+
+    doc.add_paragraph(f"Genererad: {datetime.now().strftime('%d %B %Y, %H:%M')}")
+    doc.add_paragraph("")
+
+    headings = ["HD:S BESLUT", "RÄTTSFRAGA", "DOMSKÄL", "LEGALA PRINCIPER", "SKILJAKTIG MENING", "PREJUDIKAT"]
+
+    lines = analysis.split('\n')
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        if any(line.startswith(h) for h in headings):
+            doc.add_heading(line, level=2)
+        else:
+            doc.add_paragraph(line)
+
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+
+    return app.response_class(
+        buffer.getvalue(),
+        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        headers={'Content-Disposition': 'attachment; filename=goose-analys.docx'}
+    )
+
 
 @app.route("/privacy")
 def privacy():
