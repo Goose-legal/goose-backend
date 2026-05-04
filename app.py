@@ -37,7 +37,7 @@ Viktigt:
 - Sarskild noga mellan bakgrund, rattsfrage, HD:s motivering och prejudikatverkan.
 - Ta inte med egna antaganden.
 - Om information saknas eller ar osakar, skriv: Framgår inte tydligt av texten.
-- Efter varje pastand, citera det relevanta stycket fran rattsfallet inom citationstecken.
+- - Efter varje pastand, ange kälhänvisning inom parentes. Om rattsfallet har numrerade punkter, använd punktnumret t.ex. (p. 14). Om rattsfallet saknar numrerade punkter, ange istället vilket avsnitt citatet kommer fran t.ex. (Domskäl st. 3) eller (HD st. 2). Citera sedan det relevanta stycket inom citationstecken.
 
 Svara med foljande rubriker och inget annat:
 
