@@ -160,6 +160,66 @@ def download():
         headers={'Content-Disposition': f'attachment; filename="{filename}"'}
     )
 
+@app.route("/analyse-proposition", methods=["POST"])
+def analyse_proposition():
+    data = request.json
+    case_text = data.get("caseText", "")
+
+    if not case_text:
+        return jsonify({"error": "Ingen text skickades"}), 400
+
+    def generate():
+        with client.messages.stream(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=min(1500 + (len(case_text) // 1000) * 500, 4000),
+            messages=[{
+                "role": "user",
+                "content": f"""Du ska analysera ett svenskt forarbete och ge en strukturerad sammanfattning.
+
+Viktigt:
+- Bygg endast pa det som uttryckligen framgar av texten.
+- Ta inte med egna antaganden.
+- Om information saknas, skriv: Framgar inte tydligt av texten.
+- Citera relevanta stycken inom citationstecken.
+
+Svara med foljande rubriker och inget annat:
+
+SYFTE
+Vad syftar forslaget till att uppna?
+
+BAKGRUND
+Varfor laggs detta forslag fram?
+
+FORSLAGET
+Vad foreslas konkret?
+
+REMISSVAR
+Hur staller sig remissinstanserna till forslaget?
+
+KONSEKVENSER
+Vilka konsekvenser bedoms forslaget fa?
+
+IKRAFTTRÄDANDE
+Nar och hur ska forslaget tradda i kraft?
+
+Krav:
+- Max 3 meningar per rubrik
+- Max 500 ord totalt
+- Enkel och tydlig svenska
+- Inga punktlistor
+- Ingen markdown
+
+Text:
+<forarbete>
+{case_text}
+</forarbete>"""
+            }]
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
+    return app.response_class(generate(), mimetype='text/plain')
+
 @app.route("/privacy")
 def privacy():
     return """
