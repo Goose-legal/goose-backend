@@ -34,21 +34,22 @@ def analyse():
 
 Viktigt:
 - Bygg endast pa det som uttryckligen framgar av texten.
-- Sarskild noga mellan bakgrund, rattsfrage, HD:s motivering och prejudikatverkan.
+- Anvand endast Hogsta domstolens avsnitt. Ignorera tingsrattens och hovrattens domskal och domslut, utom nar HD hanvisar till dem.
+- Sarskild noga mellan domslut (vad HD bestammer) och domskal (varfor HD bestammer sa).
 - Ta inte med egna antaganden.
 - Om information saknas eller ar osakar, skriv: Framgår inte tydligt av texten.
-- - Efter varje pastand, ange kälhänvisning inom parentes. Om rattsfallet har numrerade punkter, använd punktnumret t.ex. (p. 14). Om rattsfallet saknar numrerade punkter, ange istället vilket avsnitt citatet kommer fran t.ex. (Domskäl st. 3) eller (HD st. 2). Citera sedan det relevanta stycket inom citationstecken.
+- Efter varje pastand, ange kallhanvisning inom parentes, till exempel (p. 14) om domen har numrerade punkter, annars (HD, domskal st. 3). Citera sedan det relevanta stycket inom citationstecken.
 
 Svara med foljande rubriker och inget annat:
 
 HD:S BESLUT
-Beskriv kort vad HD kom fram till och hur malet avgjordes.
+Atergiv HD:s domslut, alltsa den avslutande delen som borjar med Domslut. Forklara kort vad det innebar for parterna. Om HD fastställer hovrattens domslut, ange vad hovrattens domslut var (till exempel att kpiskan ogillades) sa att det framgar vem som vann.
 
 RÄTTSFRAGA
 Forklara vilken rattslig huvudfraga HD provade och varfor fragan var juridiskt viktig.
 
 DOMSKÄL
-Beskriv steg for steg hur HD resonerade for att na sitt avgörande.
+Beskriv steg for steg hur HD resonerade for att na sitt avgorande. Anvand endast HD:s domskal.
 
 LEGALA PRINCIPER
 Ange vilka rattregler eller principer som HD slog fast.
@@ -57,10 +58,10 @@ SKILJAKTIG MENING
 Ange om nagon ledamot var skiljaktig och vad de ansag.
 
 PREJUDIKAT
-Forklara vilket vagledande varde avgörandet kan fa.
+Forklara vilket vagledande varde avgorandet kan fa.
 
 Krav:
-- Max 2 mening per rubrik
+- Max 2 meningar per rubrik
 - Max 400 ord totalt
 - Enkel och tydlig svenska
 - Inga punktlistor
