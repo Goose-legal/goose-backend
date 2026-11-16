@@ -43,7 +43,7 @@ Viktigt:
 Svara med foljande rubriker och inget annat:
 
 HD:S BESLUT
-Atergiv HD:s domslut, alltsa den avslutande delen som borjar med Domslut. Forklara kort vad det innebar for parterna. Om HD fastställer hovrattens domslut, ange vad hovrattens domslut var (till exempel att kpiskan ogillades) sa att det framgar vem som vann.
+Atergiv HD:s domslut, alltsa den avslutande delen som borjar med Domslut. Forklara kort vad det innebar for parterna. Om HD fastställer hovrattens domslut, ange vad hovrattens domslut var sa att det framgar vem som vann.
 
 RÄTTSFRAGA
 Forklara vilken rattslig huvudfraga HD provade och varfor fragan var juridiskt viktig.
